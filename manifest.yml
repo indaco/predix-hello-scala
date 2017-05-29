@@ -1,0 +1,6 @@
+---
+applications:
+- name: your-name-predix-hello-scala
+  memory: 512M
+  instances: 1
+  buildpack: https://github.com/heroku/heroku-buildpack-scala.git
