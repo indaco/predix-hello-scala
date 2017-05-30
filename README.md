@@ -20,18 +20,32 @@ Here is a [Live Demo](https://mv-predix-hello-scala.run.aws-usw02-pr.ice.predix.
 - Show an extract from that info
 `Cloud Foundry GE Open Sandbox: API version = 2.62.0`
 
-## How to use it?
+## Getting Started
 
-It can be used as baseline to create some more complex stuff on Predix using the Scala way.
+### Install tools
+Be sure to have [SBT](http://www.scala-sbt.org/) installed on you machine
 
-1. Clone the repos
-`
-$ git clone https://github.com/indaco/predix-hello-scala
-`
+### Get the source code
 
-2. Open the `manifest.yml` file and edit the `name` for your own application
+Make a directory for your project. Clone or download and extract the starter in that directory.
 
-3. Push the app to you r Predix account `$cf push`
+```
+git clone https://github.com/indaco/predix-hello-scala.git
+cd predix-hello-scala
+```
+
+## Running the app locally
+
+```
+sbt
+
+> run-main WebServer
+```
+
+## Running in Predix Cloud
+
+1. Open the `manifest.yml` file and edit the `name` for your own application
+2. Push the app to your Predix account `$cf push`
 
 - - -
 
