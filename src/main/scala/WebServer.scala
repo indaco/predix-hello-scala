@@ -3,12 +3,10 @@
 import com.twitter.finagle.Http
 import com.twitter.util.Await
 import java.net.InetSocketAddress
-
-import java.net.InetSocketAddress
 import util.Properties
 
 /*
- * A basic HTTP Server to handle requests from The Predix Client
+ * A basic HTTP Server.
  *
  * version: 0.1
  * copyright: 2017 - Mirco Veltri
