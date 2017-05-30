@@ -11,9 +11,7 @@ This sample app leverages on:
 - [Circe](https://circe.github.io/circe/) as JSON library for Scala
 - [heroku-buildpack-scala](https://github.com/heroku/heroku-buildpack-scala) for Cloud Foundry
 
-Here is a [Live Demo](https://mv-predix-hello-scala.run.aws-usw02-pr.ice.predix.io/)
-
-## What it does?
+## What does it do?
 
 - Create a Finagle HTTP Server
 - Create a Finagle HTTP Client (based on [this example](https://github.com/tattyamm/finagle-http-sample/blob/master/src/main/scala/jp/tattyamm/finagle/sample/HttpClient.scala)) to call the Predix API Endpoint and get info on the environment
