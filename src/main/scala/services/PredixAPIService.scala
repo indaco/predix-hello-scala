@@ -22,6 +22,15 @@ class PredixAPIService extends Service[Request, Response]{
   val PredixAPIEndpointPort = "443"
   val PathToCFInfo = "/v2/info"
 
+  private[this] val client =
+    new HandleErrors andThen
+    ClientBuilder()
+      .stack(Http.client)
+      .hosts(s"$PredixAPIEndpointHost:$PredixAPIEndpointPort")
+      .tls(PredixAPIEndpointHost)
+      .hostConnectionLimit(1)
+      .build()
+
   class InvalidRequest extends Exception
 
   /**
@@ -29,8 +38,6 @@ class PredixAPIService extends Service[Request, Response]{
    */
   class HandleErrors extends SimpleFilter[Request, Response] {
     def apply(request: Request, service: Service[Request, Response]) = {
-      // flatMap asynchronously responds to requests and can "map" them to both
-      // success and failure values:
       service(request) flatMap { response =>
         response.status match {
           case Status.Ok => Future.value(response)
@@ -41,41 +48,17 @@ class PredixAPIService extends Service[Request, Response]{
     }
   }
 
-  def apply(req: Request): Future[Response] ={
-    val clientWithoutErrorHandling: Service[Request, Response] = ClientBuilder()
-      .stack(Http.client)
-      .hosts(s"$PredixAPIEndpointHost:$PredixAPIEndpointPort")
-      .tls(PredixAPIEndpointHost)
-      .hostConnectionLimit(1)
-      .build()
+   def apply(req: Request): Future[Response] = {
+     val authorizedRequest = Request(Version.Http11, Method.Get, PathToCFInfo)
+     client(authorizedRequest) onSuccess { response =>
+       val parsedJson: Json = parse(response.contentString).getOrElse(Json.Null)
+       val cursor: HCursor = parsedJson.hcursor
+       val cfDescription = cursor.downField("description").as[String].right.getOrElse("")
+       val cfAPIVersion = cursor.downField("api_version").as[String].right.getOrElse("")
 
-    val handleErrors = new HandleErrors
-
-    // compose the Filter with the client:
-    val client: Service[Request, Response] = handleErrors andThen clientWithoutErrorHandling
-    makeRequest(client)
-  }
-
-  private[this] def makeRequest(client: Service[Request, Response]): Future[Response] = {
-    val authorizedRequest = Request(Version.Http11, Method.Get, PathToCFInfo)
-
-    client(authorizedRequest) onSuccess { response =>
-      val parsedJson: Json = parse(response.contentString).getOrElse(Json.Null)
-      val cursor: HCursor = parsedJson.hcursor
-
-      val cfDescription = cursor.downField("description").as[String] match {
-        case Left(s) => s
-        case Right(s) => s
-      }
-
-      val cfAPIVersion = cursor.downField("api_version").as[String] match {
-        case Left(s) => s
-        case Right(s) => s
-      }
-      response.setStatusCode(200)
-      response.setContentString(s"$cfDescription: API version = $cfAPIVersion")
-
-    }
+       response.setStatusCode(200)
+       response.setContentString(s"$cfDescription: API version = $cfAPIVersion")
+     }
   }
 
 }
